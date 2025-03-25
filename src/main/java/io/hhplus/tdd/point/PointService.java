@@ -38,4 +38,20 @@ public class PointService {
         pointHistoryTable.insert(id, amount, TransactionType.CHARGE, System.currentTimeMillis());
         return userPointTable.insertOrUpdate(id, amount);
     }
+
+    /**
+     * 유저의 포인트를 사용하는 기능
+     */
+    public UserPoint use(long id, long amount) {
+        // 유저 포인트 조회
+        UserPoint userPoint = userPointTable.selectById(id);
+        if(userPoint.point() < amount) {
+            throw new RuntimeException("포인트가 부족합니다");
+        }
+        // 히스토리 등록
+        pointHistoryTable.insert(id, amount, TransactionType.USE, System.currentTimeMillis());
+        // 남은 포인트 계산
+        long afterPoint = userPoint.point() - amount;
+        return userPointTable.insertOrUpdate(id, afterPoint);
+    }
 }

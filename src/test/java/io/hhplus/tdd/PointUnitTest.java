@@ -6,6 +6,7 @@ import io.hhplus.tdd.point.PointHistory;
 import io.hhplus.tdd.point.PointService;
 import io.hhplus.tdd.point.TransactionType;
 import io.hhplus.tdd.point.UserPoint;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,7 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class PointUnitTest {
@@ -78,4 +81,37 @@ public class PointUnitTest {
         assertEquals(result.id(), id);  // 충전요청한 아이디로 충전됐는지 확인
     }
 
+    @Test
+    public void 유저의_포인트_사용_기능_테스트() throws Exception {
+        // given
+        long id = 1;    // userId
+        long keepPoint = 15;   // keepPoint point
+        long usePoint = 5;   // use point
+
+        // when
+        when(userPointTable.selectById(id)).thenReturn(new UserPoint(id, keepPoint, System.currentTimeMillis())); // 보유 포인트 조회
+        when(userPointTable.insertOrUpdate(id, keepPoint - usePoint)).thenReturn(new UserPoint(id, (keepPoint - usePoint), System.currentTimeMillis())); // 사용
+
+        UserPoint result = pointService.use(id, usePoint);
+
+        // then
+        assertEquals(result.point(), keepPoint - usePoint); // 포인트가 사용됐는지 확인
+        assertEquals(result.id(), id);  // 사용 요청한 아이디로 사용됐는지 확인
+    }
+
+    @Test
+    @DisplayName("유저가 보유한 포인트보다 많은 포인트 사용 불가 테스트")
+    public void use_point_test() throws Exception {
+        // given
+        long id = 1;    // userId
+        long keepPoint = 10;   // keepPoint point
+        long usePoint = 50;   // use point
+
+        // when
+        when(userPointTable.selectById(id)).thenReturn(new UserPoint(id, keepPoint, System.currentTimeMillis())); // 보유 포인트 조회
+
+        // then
+        assertThrows(RuntimeException.class, () -> pointService.use(id, usePoint));
+        assertEquals("포인트가 부족합니다", assertThrows(RuntimeException.class, () -> pointService.use(id, usePoint)).getMessage());
+    }
 }
