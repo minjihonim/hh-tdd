@@ -44,7 +44,7 @@ public class PointUnitTest {
     }
 
     @Test
-    public void 유저의_포인트_충전_이용_내역을_조회() {
+    public void 유저의_포인트_충전_이용_내역을_조회_테스트() {
         // given
         long id = 1;
         List<PointHistory> pointHistoryList = new ArrayList<>();
@@ -61,6 +61,21 @@ public class PointUnitTest {
         assertThat(pointHistories).hasSize(2);
         assertThat(pointHistories).extracting(PointHistory::type).contains(TransactionType.CHARGE);
         assertThat(pointHistories).extracting(PointHistory::type).contains(TransactionType.USE);
+    }
+    
+    @Test
+    public void 유저의_포인트를_충전하는_기능() throws Exception {
+        // given
+        long id = 1;    // userId
+        long amount = 10;   // charge point
+
+        // when
+        when(userPointTable.insertOrUpdate(id, amount)).thenReturn(new UserPoint(id, amount, System.currentTimeMillis()));
+        UserPoint result = pointService.charge(id, amount);
+
+        // then
+        assertEquals(result.point(), amount);   // 충전포인트가 충전됐는지 확인
+        assertEquals(result.id(), id);  // 충전요청한 아이디로 충전됐는지 확인
     }
 
 }

@@ -30,4 +30,12 @@ public class PointService {
     public List<PointHistory> history(long id) {
         return pointHistoryTable.selectAllByUserId(id);
     }
+
+    /**
+     * 유저의 포인트를 충전하는 기능
+     */
+    public UserPoint charge(long id, long amount) {
+        pointHistoryTable.insert(id, amount, TransactionType.CHARGE, System.currentTimeMillis());
+        return userPointTable.insertOrUpdate(id, amount);
+    }
 }
