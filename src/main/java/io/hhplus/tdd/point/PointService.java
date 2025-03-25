@@ -1,0 +1,33 @@
+package io.hhplus.tdd.point;
+
+import io.hhplus.tdd.database.PointHistoryTable;
+import io.hhplus.tdd.database.UserPointTable;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class PointService {
+
+    private final UserPointTable userPointTable;
+    private final PointHistoryTable pointHistoryTable;
+
+    public PointService(UserPointTable userPointTable, PointHistoryTable pointHistoryTable) {
+        this.userPointTable = userPointTable;
+        this.pointHistoryTable = pointHistoryTable;
+    }
+
+    /**
+     * 특정 유저의 포인트를 조회
+     */
+    public UserPoint point(long id) {
+        return userPointTable.selectById(id);
+    }
+
+    /**
+     * 특정 유저의 포인트 충전/이용 내역을 조회
+     */
+    public List<PointHistory> history(long id) {
+        return pointHistoryTable.selectAllByUserId(id);
+    }
+}
