@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
@@ -73,6 +72,7 @@ public class PointUnitTest {
         long amount = 10;   // charge point
 
         // when
+        when(userPointTable.selectById(id)).thenReturn(new UserPoint(id, 0, System.currentTimeMillis())); // 보유 포인트 조회
         when(userPointTable.insertOrUpdate(id, amount)).thenReturn(new UserPoint(id, amount, System.currentTimeMillis()));
         UserPoint result = pointService.charge(id, amount);
 

@@ -36,8 +36,14 @@ public class PointService {
      * 유저의 포인트를 충전하는 기능
      */
     public UserPoint charge(long id, long amount) {
+        // 유저 포인트 조회
+        UserPoint userPoint = userPointTable.selectById(id);
+        // 히스토리 등록
         pointHistoryTable.insert(id, amount, TransactionType.CHARGE, System.currentTimeMillis());
-        return userPointTable.insertOrUpdate(id, amount);
+        // 보유 포인트 + 충전 포인트
+        long updatePoint = userPoint.point() + amount;
+        // 포인트 업데이트
+        return userPointTable.insertOrUpdate(id, updatePoint);
     }
 
     /**
