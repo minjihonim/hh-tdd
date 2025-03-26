@@ -11,10 +11,11 @@ public class PointService {
 
     private final UserPointTable userPointTable;
     private final PointHistoryTable pointHistoryTable;
-
-    public PointService(UserPointTable userPointTable, PointHistoryTable pointHistoryTable) {
+    private final PolicyServiceValidator policyServiceValidator;
+    public PointService(UserPointTable userPointTable, PointHistoryTable pointHistoryTable, PolicyServiceValidator policyServiceValidator) {
         this.userPointTable = userPointTable;
         this.pointHistoryTable = pointHistoryTable;
+        this.policyServiceValidator = policyServiceValidator;
     }
 
     /**
@@ -45,9 +46,7 @@ public class PointService {
     public UserPoint use(long id, long amount) {
         // 유저 포인트 조회
         UserPoint userPoint = userPointTable.selectById(id);
-        if(userPoint.point() < amount) {
-            throw new RuntimeException("포인트가 부족합니다");
-        }
+        policyServiceValidator.validateUseUserPoint(userPoint, amount);
         // 히스토리 등록
         pointHistoryTable.insert(id, amount, TransactionType.USE, System.currentTimeMillis());
         // 남은 포인트 계산

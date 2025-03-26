@@ -13,9 +13,11 @@ public class PointController {
     private static final Logger log = LoggerFactory.getLogger(PointController.class);
 
     private final PointService pointService;
+    private final PolicyControllerValidator policyValidator;
 
-    public PointController(PointService pointService) {
+    public PointController(PointService pointService, PolicyControllerValidator policyValidator) {
         this.pointService = pointService;
+        this.policyValidator = policyValidator;
     }
 
     /**
@@ -25,6 +27,7 @@ public class PointController {
     public UserPoint point(
             @PathVariable long id
     ) {
+        policyValidator.validateUserId(id);
         return pointService.point(id);
     }
 
@@ -35,6 +38,7 @@ public class PointController {
     public List<PointHistory> history(
             @PathVariable long id
     ) {
+        policyValidator.validateUserId(id);
         return pointService.history(id);
     }
 
@@ -46,6 +50,8 @@ public class PointController {
             @PathVariable long id,
             @RequestBody long amount
     ) {
+        policyValidator.validateUserId(id);
+        policyValidator.validateCharePoint(amount);
         return pointService.charge(id, amount);
     }
 
@@ -57,6 +63,8 @@ public class PointController {
             @PathVariable long id,
             @RequestBody long amount
     ) {
+        policyValidator.validateUserId(id);
+        policyValidator.validateUsePoint(amount);
         return pointService.use(id, amount);
     }
 }
